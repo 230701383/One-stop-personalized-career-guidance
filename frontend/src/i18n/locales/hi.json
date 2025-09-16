@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "home": "होम",
+    "dashboard": "डैशबोर्ड",
+    "courses": "कोर्स",
+    "colleges": "कॉलेज",
+    "timeline": "समयसीमा",
+    "scholarships": "छात्रवृत्ति",
+    "profile": "प्रोफाइल",
+    "parentMode": "अभिभावक मोड",
+    "successStories": "सफलता की कहानियां",
+    "login": "लॉगिन",
+    "logout": "लॉगआउट"
+  },
+  "home": {
+    "title": "आपका व्यक्तिगत करियर और शिक्षा सलाहकार",
+    "subtitle": "AI-संचालित सुझावों के साथ अपना सही करियर पथ खोजें",
+    "getStarted": "शुरू करें",
+    "features": {
+      "aptitude": "योग्यता-आधारित सुझाव",
+      "courses": "कोर्स सिफारिशें",
+      "colleges": "कॉलेज निर्देशिका",
+      "timeline": "समयसीमा ट्रैकर"
+    }
+  },
+  "dashboard": {
+    "welcome": "वापसी पर स्वागत है",
+    "recommendations": "आपके लिए सुझाव",
+    "timeline": "आगामी समयसीमा",
+    "colleges": "नजदीकी कॉलेज",
+    "progress": "आपकी प्रगति"
+  },
+  "profile": {
+    "title": "प्रोफाइल सेटअप",
+    "skills": "कौशल और रुचियां",
+    "preferences": "प्राथमिकताएं",
+    "save": "प्रोफाइल सेव करें"
+  },
+  "courses": {
+    "title": "कोर्स सिफारिशें",
+    "filter": "कोर्स फिल्टर करें",
+    "duration": "अवधि",
+    "level": "स्तर",
+    "category": "श्रेणी"
+  },
+  "colleges": {
+    "title": "सरकारी कॉलेज",
+    "search": "कॉलेज खोजें",
+    "location": "स्थान",
+    "compare": "तुलना करें"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "save": "सेव करें",
+    "cancel": "रद्द करें",
+    "edit": "संपादित करें",
+    "delete": "हटाएं",
+    "search": "खोजें",
+    "filter": "फिल्टर",
+    "viewMore": "और देखें"
+  }
+}

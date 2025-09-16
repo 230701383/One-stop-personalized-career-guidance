@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "courses": "Courses",
+    "colleges": "Colleges",
+    "timeline": "Timeline",
+    "scholarships": "Scholarships",
+    "profile": "Profile",
+    "parentMode": "Parent Mode",
+    "successStories": "Success Stories",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "home": {
+    "title": "Your Personalized Career & Education Advisor",
+    "subtitle": "Discover your perfect career path with AI-powered recommendations",
+    "getStarted": "Get Started",
+    "features": {
+      "aptitude": "Aptitude-Based Suggestions",
+      "courses": "Course Recommendations",
+      "colleges": "College Directory",
+      "timeline": "Timeline Tracker"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "recommendations": "Recommended for You",
+    "timeline": "Upcoming Deadlines",
+    "colleges": "Nearby Colleges",
+    "progress": "Your Progress"
+  },
+  "profile": {
+    "title": "Profile Setup",
+    "skills": "Skills & Interests",
+    "preferences": "Preferences",
+    "save": "Save Profile"
+  },
+  "courses": {
+    "title": "Course Recommendations",
+    "filter": "Filter Courses",
+    "duration": "Duration",
+    "level": "Level",
+    "category": "Category"
+  },
+  "colleges": {
+    "title": "Government Colleges",
+    "search": "Search Colleges",
+    "location": "Location",
+    "compare": "Compare"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search",
+    "filter": "Filter",
+    "viewMore": "View More"
+  }
+}

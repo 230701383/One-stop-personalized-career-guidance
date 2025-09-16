@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "dashboard": "Panel",
+    "courses": "Cursos",
+    "colleges": "Universidades",
+    "timeline": "Cronograma",
+    "scholarships": "Becas",
+    "profile": "Perfil",
+    "parentMode": "Modo Padres",
+    "successStories": "Historias de Éxito",
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión"
+  },
+  "home": {
+    "title": "Tu Asesor Personalizado de Carrera y Educación",
+    "subtitle": "Descubre tu camino profesional perfecto con recomendaciones impulsadas por IA",
+    "getStarted": "Comenzar",
+    "features": {
+      "aptitude": "Sugerencias Basadas en Aptitud",
+      "courses": "Recomendaciones de Cursos",
+      "colleges": "Directorio de Universidades",
+      "timeline": "Rastreador de Cronograma"
+    }
+  },
+  "dashboard": {
+    "welcome": "Bienvenido de vuelta",
+    "recommendations": "Recomendado para Ti",
+    "timeline": "Fechas Límite Próximas",
+    "colleges": "Universidades Cercanas",
+    "progress": "Tu Progreso"
+  },
+  "profile": {
+    "title": "Configuración de Perfil",
+    "skills": "Habilidades e Intereses",
+    "preferences": "Preferencias",
+    "save": "Guardar Perfil"
+  },
+  "courses": {
+    "title": "Recomendaciones de Cursos",
+    "filter": "Filtrar Cursos",
+    "duration": "Duración",
+    "level": "Nivel",
+    "category": "Categoría"
+  },
+  "colleges": {
+    "title": "Universidades Públicas",
+    "search": "Buscar Universidades",
+    "location": "Ubicación",
+    "compare": "Comparar"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "viewMore": "Ver Más"
+  }
+}

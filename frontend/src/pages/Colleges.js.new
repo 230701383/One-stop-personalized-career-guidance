@@ -1,0 +1,569 @@
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  MagnifyingGlassIcon,
+  FunnelIcon,
+  MapPinIcon,
+  AcademicCapIcon,
+  CurrencyRupeeIcon,
+  StarIcon,
+  BuildingOfficeIcon,
+  GlobeAltIcon,
+  ChartBarIcon,
+  ArrowTopRightOnSquareIcon,
+  MapIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline';
+import { collegesData, collegeCategories, collegeTypes, locations } from '../data/collegesData';
+
+const Colleges = () => {
+  const { t } = useTranslation();
+  const [colleges, setColleges] = useState([]);
+  const [filteredColleges, setFilteredColleges] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedType, setSelectedType] = useState('All');
+  const [selectedLocation, setSelectedLocation] = useState('All');
+  const [selectedCollege, setSelectedCollege] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [routeInfo, setRouteInfo] = useState(null);
+  const [loadingRoute, setLoadingRoute] = useState(false);
+
+  // Initialize component with data and user location
+  useEffect(() => {
+    try {
+      setColleges(collegesData);
+      setFilteredColleges(collegesData);
+      getUserLocation();
+    } catch (error) {
+      console.error('Error initializing component:', error);
+    }
+  }, []);
+
+  // Get user's current location
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.log('Location access denied:', error);
+          // Fallback to Delhi coordinates
+          setUserLocation({ lat: 28.6139, lng: 77.2090 });
+        }
+      );
+    } else {
+      // Fallback to Delhi coordinates
+      setUserLocation({ lat: 28.6139, lng: 77.2090 });
+    }
+  };
+
+  // Calculate distance between two coordinates
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return Math.round(distance * 10) / 10; // Round to 1 decimal
+  };
+
+  // Get directions to college
+  const getDirections = (college) => {
+    if (!userLocation) {
+      alert('Location not available. Please enable location access.');
+      return;
+    }
+
+    setLoadingRoute(true);
+    const distance = calculateDistance(
+      userLocation.lat, 
+      userLocation.lng, 
+      college.coordinates.lat, 
+      college.coordinates.lng
+    );
+
+    // Simulate API call
+    setTimeout(() => {
+      setRouteInfo({
+        college: college,
+        distance: distance,
+        duration: Math.round(distance * 1.5), // 1.5 minutes per km
+        route: `From your location to ${college.name}`
+      });
+      setLoadingRoute(false);
+      
+      // Open Google Maps
+      const googleMapsUrl = `https://www.google.com/maps/dir/${userLocation.lat},${userLocation.lng}/${college.coordinates.lat},${college.coordinates.lng}`;
+      window.open(googleMapsUrl, '_blank');
+    }, 1000);
+  };
+
+  // Filter colleges based on search and filters
+  useEffect(() => {
+    let filtered = [...collegesData];
+
+    // Apply search term filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(college =>
+        college.name.toLowerCase().includes(term) ||
+        college.location.toLowerCase().includes(term) ||
+        college.specializations.some(spec => spec.toLowerCase().includes(term))
+      );
+    }
+
+    // Apply category filter
+    if (selectedCategory !== 'All') {
+      filtered = filtered.filter(college => college.category === selectedCategory);
+    }
+
+    // Apply type filter
+    if (selectedType !== 'All') {
+      filtered = filtered.filter(college => college.type === selectedType);
+    }
+
+    // Apply location filter
+    if (selectedLocation !== 'All') {
+      filtered = filtered.filter(college => college.location.includes(selectedLocation));
+    }
+
+    setFilteredColleges(filtered);
+  }, [searchTerm, selectedCategory, selectedType, selectedLocation]);
+
+  // Modal handlers
+  const openModal = (college) => {
+    setSelectedCollege(college);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedCollege(null);
+  };
+
+  // Helper functions
+  const getRankingColor = (rank) => {
+    if (rank <= 10) return 'text-green-600 bg-green-100';
+    if (rank <= 50) return 'text-blue-600 bg-blue-100';
+    if (rank <= 100) return 'text-yellow-600 bg-yellow-100';
+    return 'text-gray-600 bg-gray-100';
+  };
+
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case 'Engineering': return <BuildingOfficeIcon className="h-5 w-5" />;
+      case 'Medical': return <AcademicCapIcon className="h-5 w-5" />;
+      case 'Management': return <ChartBarIcon className="h-5 w-5" />;
+      default: return <AcademicCapIcon className="h-5 w-5" />;
+    }
+  };
+
+  // Render college card
+  const renderCollegeCard = (college) => (
+    <div key={college.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div className="p-6">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            {getCategoryIcon(college.category)}
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+              college.type === 'Government' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+            }`}>
+              {college.type}
+            </span>
+          </div>
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRankingColor(college.ranking.nirf)}`}>
+            NIRF #{college.ranking.nirf}
+          </span>
+        </div>
+
+        {/* College Info */}
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">{college.shortName}</h3>
+        <p className="text-sm text-gray-600 mb-3">{college.name}</p>
+        
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center text-sm text-gray-600">
+            <MapPinIcon className="h-4 w-4 mr-2" />
+            {college.location}
+          </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <CurrencyRupeeIcon className="h-4 w-4 mr-2" />
+            {college.fees.total}
+          </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <ChartBarIcon className="h-4 w-4 mr-2" />
+            Avg Package: {college.placements.averagePackage}
+          </div>
+        </div>
+
+        {/* Specializations */}
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-1">
+            {college.specializations.slice(0, 3).map((spec, index) => (
+              <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                {spec}
+              </span>
+            ))}
+            {college.specializations.length > 3 && (
+              <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                +{college.specializations.length - 3} more
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="space-y-2">
+          <div className="flex space-x-2">
+            <button
+              onClick={() => openModal(college)}
+              className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              View Details
+            </button>
+            <a
+              href={college.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <GlobeAltIcon className="h-4 w-4" />
+            </a>
+          </div>
+          <button
+            onClick={() => getDirections(college)}
+            disabled={loadingRoute}
+            className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center justify-center space-x-2 disabled:opacity-50"
+          >
+            <MapIcon className="h-4 w-4" />
+            <span>{loadingRoute ? 'Getting Route...' : 'Get Directions'}</span>
+          </button>
+          {userLocation && college.coordinates && (
+            <div className="text-xs text-gray-500 text-center">
+              ~{calculateDistance(userLocation.lat, userLocation.lng, college.coordinates.lat, college.coordinates.lng)} km away
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render modal
+  const renderModal = () => {
+    if (!showModal || !selectedCollege) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">{selectedCollege.name}</h2>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            <p className="text-gray-600 mt-1">
+              {selectedCollege.location} • Est. {selectedCollege.established}
+            </p>
+          </div>
+          
+          <div className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column */}
+              <div className="space-y-6">
+                {/* Rankings */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Rankings</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">#{selectedCollege.ranking.nirf}</div>
+                      <div className="text-sm text-gray-600">NIRF</div>
+                    </div>
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">#{selectedCollege.ranking.qs}</div>
+                      <div className="text-sm text-gray-600">QS World</div>
+                    </div>
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className="text-lg font-bold text-purple-600">{selectedCollege.ranking.times}</div>
+                      <div className="text-sm text-gray-600">Times</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fees */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Fee Structure</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Tuition Fee:</span>
+                      <span className="font-medium">{selectedCollege.fees.tuition}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Hostel Fee:</span>
+                      <span className="font-medium">{selectedCollege.fees.hostel}</span>
+                    </div>
+                    <div className="flex justify-between border-t pt-2">
+                      <span className="font-semibold">Total Fee:</span>
+                      <span className="font-bold text-blue-600">{selectedCollege.fees.total}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cutoffs */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Cutoff Ranks</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="text-lg font-bold">{selectedCollege.cutoff.general}</div>
+                      <div className="text-sm text-gray-600">General</div>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="text-lg font-bold">{selectedCollege.cutoff.obc}</div>
+                      <div className="text-sm text-gray-600">OBC</div>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="text-lg font-bold">{selectedCollege.cutoff.sc}</div>
+                      <div className="text-sm text-gray-600">SC</div>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="text-lg font-bold">{selectedCollege.cutoff.st}</div>
+                      <div className="text-sm text-gray-600">ST</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                {/* Placements */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Placements</h3>
+                  <div className="space-y-3">
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{selectedCollege.placements.averagePackage}</div>
+                      <div className="text-sm text-gray-600">Average Package</div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <div className="text-lg font-bold">{selectedCollege.placements.highestPackage}</div>
+                        <div className="text-sm text-gray-600">Highest Package</div>
+                      </div>
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <div className="text-lg font-bold">{selectedCollege.placements.placementRate}%</div>
+                        <div className="text-sm text-gray-600">Placement Rate</div>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <h4 className="font-medium mb-2">Top Recruiters</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedCollege.placements.topRecruiters.map((recruiter, index) => (
+                          <span key={index} className="px-2 py-1 bg-white text-xs rounded border">
+                            {recruiter}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Facilities */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Facilities</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {selectedCollege.facilities.map((facility, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                        <span className="text-sm">{facility}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Contact Info */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-start">
+                      <MapPinIcon className="h-5 w-5 text-gray-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{selectedCollege.address}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <a 
+                        href={`tel:${selectedCollege.contact.phone}`}
+                        className="text-blue-600 hover:underline text-sm flex items-center"
+                      >
+                        <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        {selectedCollege.contact.phone}
+                      </a>
+                    </div>
+                    <div className="flex items-center">
+                      <a 
+                        href={`mailto:${selectedCollege.contact.email}`}
+                        className="text-blue-600 hover:underline text-sm flex items-center"
+                      >
+                        <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        {selectedCollege.contact.email}
+                      </a>
+                    </div>
+                    <div className="flex items-center">
+                      <a 
+                        href={selectedCollege.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline text-sm flex items-center"
+                      >
+                        <GlobeAltIcon className="h-4 w-4 mr-1" />
+                        {selectedCollege.website.replace(/^https?:\/\//, '')}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="text-lg font-semibold mb-3">About {selectedCollege.shortName}</h3>
+              <p className="text-gray-700">{selectedCollege.description}</p>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-6 pt-6 border-t flex justify-end space-x-3">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Close
+              </button>
+              <a
+                href={selectedCollege.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              >
+                <GlobeAltIcon className="h-4 w-4 mr-2" />
+                Visit Website
+              </a>
+              <button
+                onClick={() => getDirections(selectedCollege)}
+                disabled={loadingRoute}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center disabled:opacity-50"
+              >
+                <MapIcon className="h-4 w-4 mr-2" />
+                {loadingRoute ? 'Getting Directions...' : 'Get Directions'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Main component render
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Colleges</h1>
+          <p className="text-gray-600">Discover top colleges and universities across India</p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Search */}
+            <div className="relative">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search colleges..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Category Filter */}
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="All">All Categories</option>
+              {collegeCategories.map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+
+            {/* Type Filter */}
+            <select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="All">All Types</option>
+              {collegeTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+
+            {/* Location Filter */}
+            <select
+              value={selectedLocation}
+              onChange={(e) => setSelectedLocation(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="All">All Locations</option>
+              {locations.map(location => (
+                <option key={location} value={location}>{location}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="mb-6">
+          <p className="text-gray-600">
+            Showing {filteredColleges.length} of {colleges.length} colleges
+          </p>
+        </div>
+
+        {/* Colleges Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredColleges.map(renderCollegeCard)}
+        </div>
+
+        {/* No Results */}
+        {filteredColleges.length === 0 && (
+          <div className="text-center py-12">
+            <AcademicCapIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No colleges found</h3>
+            <p className="mt-1 text-sm text-gray-500">Try adjusting your search criteria.</p>
+          </div>
+        )}
+      </div>
+
+      {/* College Detail Modal */}
+      {renderModal()}
+    </div>
+  );
+};
+
+export default Colleges;
